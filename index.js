@@ -49,7 +49,7 @@ app.get('/api/ytdl', async (req, res) => {
     const downloadId = `${slug}-${shortId}`;
     downloadMap[downloadId] = actualDownloadUrl;
 
-    const maskedUrl = `${req.hostname}` +'/download/'+`${downloadId}.mp3`;
+    const maskedUrl = `proxy-nine-brown.vercel.app/download/${downloadId}.mp3`;
     res.json({ title: title, download: maskedUrl });
   } catch (err) {
     res.status(500).json({ error: 'Conversion failed', detail: err.message });
@@ -69,7 +69,7 @@ app.get('/download/:id', async (req, res) => {
       responseType: 'stream'
     });
 
-    res.setHeader('Content-Disposition', 'attachment; filename="download.mp3"');
+    res.setHeader('Content-Disposition', `attachment; filename="${slug}.mp3"`);
     res.setHeader('Content-Type', response.headers['content-type']);
     response.data.pipe(res);
   } catch (err) {
