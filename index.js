@@ -19,6 +19,10 @@ function generateShortId(length = 5) {
 app.get('/api/ytdl', async (req, res) => {
   const { url, quality } = req.query;
 
+  if (!url) {
+    return res.status(400).json({ error: 'Missing url parameter' });
+  };
+
   try {
     const response = await axios.post('https://api.dlsrv.online/api/convert', {
       url,
