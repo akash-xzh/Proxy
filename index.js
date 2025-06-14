@@ -1,35 +1,41 @@
 const express = require('express');
-const axios = require('axios');
+const { spawn } = require('child_process');
 
 const app = express();
 
-app.get('/stream', async (req, res) => {
-  const { url } = req.query;
-  if (!url) {
-    return res.status(400).send('Missing url query parameter');
+app.get('/audio', (req, res) => {
+  const videoUrl = req.query.url;
+
+  if (!videoUrl) {
+    return res.status(400).send('Missing url parameter');
   }
 
-  try {
-    const response = await axios({
-  method: 'get',
-  url,
-  responseType: 'stream',
-  timeout: 30000,
-  headers: {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-    'Accept': '*/*',
-    'Referer': 'https://www.youtube.com/',
-  }
-});
+  res.setHeader('Content-Type', 'audio/webm');
 
+  const ytdlp = spawn('yt-dlp', [
+    '-f', 'bestaudio',
+    '-o', '-', 
+    videoUrl
+  ]);
 
-    res.setHeader('content-type', response.headers['content-type'] || 'application/octet-stream');
-    response.data.pipe(res);
-    response.data.on('error', () => res.end());
-  } catch (error) {
-    res.status(400).send('Failed to fetch URL');
-  }
+  ytdlp.stdout.pipe(res);
+
+  ytdlp.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  ytdlp.on('error', (err) => {
+    console.error('yt-dlp error:', err);
+    res.status(500).end();
+  });
+
+  ytdlp.on('close', (code) => {
+    if (code !== 0) {
+      console.log(`yt-dlp exited with code ${code}`);
+    }
+    res.end();
+  });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT);
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
