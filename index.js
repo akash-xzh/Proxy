@@ -46,10 +46,10 @@ app.get('/api/ytdl', async (req, res) => {
 
     const slug = slugify(title, { lower: true, strict: true });
     const shortId = generateShortId();
-    const downloadId = `${slug}-${shortId}`;
+    const downloadId = `${slug}-${shortId}.mp3`;
     downloadMap[downloadId] = actualDownloadUrl;
 
-    const maskedUrl = `proxy-nine-brown.vercel.app/download/${downloadId}.mp3`;
+    const maskedUrl = `proxy-nine-brown.vercel.app/download/${downloadId}`;
     res.json({ title: title, download: maskedUrl });
   } catch (err) {
     res.status(500).json({ error: 'Conversion failed', detail: err.message });
@@ -57,11 +57,7 @@ app.get('/api/ytdl', async (req, res) => {
 });
 
 app.get('/download/:id', async (req, res) => {
-  let id = req.params.id;
-  if (id.endsWith('.mp3')) {
-    id = id.slice(0, -4);
-  }
-
+ 
   const realUrl = downloadMap[id];
 
   if (!realUrl) {
