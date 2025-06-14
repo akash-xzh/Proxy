@@ -79,5 +79,5 @@ app.get('/download/:id', async (req, res) => {
 
 const PORT = 2000;
 app.listen(PORT, () => {
-  console.log(`Proxy server running at http://140.238.246.35:${PORT}`);
+  console.log(`Proxy server running at ${PORT}`);
 });
