@@ -21,7 +21,7 @@ app.get('/api/ytdl', async (req, res) => {
 
   if (!url) {
     return res.status(400).json({ error: 'Missing url parameter' });
-  };
+  }
 
   try {
     const response = await axios.post('https://api.dlsrv.online/api/convert', {
@@ -57,7 +57,8 @@ app.get('/api/ytdl', async (req, res) => {
 });
 
 app.get('/download/:id', async (req, res) => {
- 
+  const { id } = req.params;
+
   const realUrl = downloadMap[id];
 
   if (!realUrl) {
@@ -69,8 +70,9 @@ app.get('/download/:id', async (req, res) => {
       responseType: 'stream'
     });
 
-    res.setHeader('Content-Disposition', `attachment; filename="${slug}.mp3"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${id}"`);
     res.setHeader('Content-Type', response.headers['content-type']);
+
     response.data.pipe(res);
   } catch (err) {
     res.status(500).json({ error: 'Download failed', detail: err.message });
