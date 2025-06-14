@@ -16,7 +16,7 @@ function generateShortId(length = 5) {
   return id;
 }
 
-app.get('api/ytdl', async (req, res) => {
+app.get('/api/ytdl', async (req, res) => {
   const { url, quality } = req.query;
 
   try {
