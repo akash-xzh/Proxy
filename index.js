@@ -57,7 +57,11 @@ app.get('/api/ytdl', async (req, res) => {
 });
 
 app.get('/download/:id', async (req, res) => {
-  const id = req.params.id;
+  let id = req.params.id;
+  if (id.endsWith('.mp3')) {
+    id = id.slice(0, -4);
+  }
+
   const realUrl = downloadMap[id];
 
   if (!realUrl) {
