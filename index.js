@@ -5,7 +5,7 @@ const slugify = require('slugify');
 const app = express();
 app.use(express.json());
 
-const downloadMap = {}; // In-memory, short-term storage
+const downloadMap = {};
 
 function generateShortId(length = 5) {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -54,7 +54,7 @@ app.get('/api/ytdl', async (req, res) => {
       title
     };
 
-    const maskedUrl = `https://your-domain.onrender.com/download/${slug}-${shortId}.mp3`;
+    const maskedUrl = `https://proxydl.onrender.com/download/${slug}-${shortId}.mp3`;
     res.json({ title, download: maskedUrl });
   } catch (err) {
     res.status(500).json({ error: 'Conversion failed', detail: err.message });
@@ -89,7 +89,7 @@ app.get('/api/videodl', async (req, res) => {
       title
     };
 
-    const maskedUrl = `https://your-domain.onrender.com/video/${slug}-${shortId}.mp4`;
+    const maskedUrl = `https://proxydl.onrender.com/video/${slug}-${shortId}.mp4`;
     res.json({ title, download: maskedUrl });
   } catch (err) {
     res.status(500).json({ error: 'Video fetch failed', detail: err.message });
