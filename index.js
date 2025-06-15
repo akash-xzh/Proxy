@@ -56,6 +56,59 @@ app.get('/api/ytdl', async (req, res) => {
   }
 });
 
+ app.get('/api/videodl', async (req, res) => {
+  const { url } = req.query;
+
+  if (!url) {
+    return res.status(400).json({ error: 'Missing url parameter' });
+  }
+
+  try {
+    const response = await axios.get(`https://www.smfahim.xyz/alldl?url=${encodeURIComponent(url)}`);
+    const data = response.data;
+
+    const videoUrl = data?.links?.hd || data?.links?.sd;
+    const title = data?.title || 'video';
+
+    if (!videoUrl) {
+      return res.status(500).json({ error: 'Video URL not found in API response' });
+    }
+
+    const slug = slugify(title, { lower: true, strict: true });
+    const shortId = generateShortId();
+    const downloadId = `${slug}-${shortId}.mp4`;
+    downloadMap[downloadId] = videoUrl;
+
+    const maskedUrl = `proxy-nine-brown.vercel.app/video/${downloadId}`;
+    res.json({ title: title, download: maskedUrl });
+  } catch (err) {
+    res.status(500).json({ error: 'Video fetch failed', detail: err.message });
+  }
+});
+
+  app.get('/video/:id', async (req, res) => {
+  const { id } = req.params;
+
+  const realUrl = downloadMap[id];
+
+  if (!realUrl) {
+    return res.status(404).json({ error: 'Invalid video ID' });
+  }
+
+  try {
+    const response = await axios.get(realUrl, {
+      responseType: 'stream'
+    });
+
+    res.setHeader('Content-Disposition', `inline; filename="${id}"`);
+    res.setHeader('Content-Type', response.headers['content-type'] || 'video/mp4');
+
+    response.data.pipe(res);
+  } catch (err) {
+    res.status(500).json({ error: 'Video stream failed', detail: err.message });
+  }
+});
+
 app.get('/download/:id', async (req, res) => {
   const { id } = req.params;
 
